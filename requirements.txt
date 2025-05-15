@@ -3,5 +3,6 @@ beautifulsoup4==4.11.1
 Django==4.1b1
 django-bootstrap5==25.1
 platformshconfig==2.4.0
+soupsieve==2.3.2.post1
 sqlparse==0.5.3
 tzdata==2025.2
