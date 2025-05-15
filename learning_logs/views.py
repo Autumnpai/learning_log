@@ -89,3 +89,8 @@ def edit_entry(request, entry_id):
 
     context = {'entry': entry, 'topic': topic, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
+
+def _check_topic_owner(topic, user):
+    """Make sure the user associated with a topic."""
+    if topic.owner != user:
+        raise Http404
