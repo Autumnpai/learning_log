@@ -5,7 +5,6 @@ from django.http import Http404
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
 
-# Create your views here.
 def index(request):
     """The home page for Learning Log."""
     return render(request, 'Learning_logs/index.html')
@@ -21,7 +20,7 @@ def topics(request):
 def topic(request, topic_id):
     """Show a single topic and all its entries."""
     topic = Topic.objects.get(id=topic_id)
-    # _check_topic_owner(topic, request.user)
+    # Make sure the topic belongs to the current user.
     if topic.owner != request.user:
         raise Http404
     
@@ -90,8 +89,3 @@ def edit_entry(request, entry_id):
 
     context = {'entry': entry, 'topic': topic, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
-
-def _check_topic_owner(topic, user):
-    """Make sure the user associated with a topic."""
-    if topic.owner != user:
-        raise Http404
