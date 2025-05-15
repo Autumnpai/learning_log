@@ -5,10 +5,10 @@ from django.http import Http404
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
 
-# Create your views here.
+
 def index(request):
     """The home page for Learning Log."""
-    return render(request, 'Learning_logs/index.html')
+    return render(request, 'learning_logs/index.html')
 
 @login_required
 def topics(request):
@@ -21,10 +21,10 @@ def topics(request):
 def topic(request, topic_id):
     """Show a single topic and all its entries."""
     topic = Topic.objects.get(id=topic_id)
-    # _check_topic_owner(topic, request.user)
+    # Make sure the topic belongs to the current user.
     if topic.owner != request.user:
         raise Http404
-    
+
     entries = topic.entry_set.order_by('-date_added')
     context = {'topic': topic, 'entries': entries}
     return render(request, 'learning_logs/topic.html', context)
@@ -39,7 +39,6 @@ def new_topic(request):
         # POST data submitted; process data.
         form = TopicForm(data=request.POST)
         if form.is_valid():
-            # form.save()
             new_topic = form.save(commit=False)
             new_topic.owner = request.user
             new_topic.save()
@@ -53,7 +52,6 @@ def new_topic(request):
 def new_entry(request, topic_id):
     """Add a new entry for a particular topic."""
     topic = Topic.objects.get(id=topic_id)
-    _check_topic_owner(topic, request.user)
 
     if request.method != 'POST':
         # No data submitted; create a blank form.
@@ -76,7 +74,8 @@ def edit_entry(request, entry_id):
     """Edit an existing entry."""
     entry = Entry.objects.get(id=entry_id)
     topic = entry.topic
-    _check_topic_owner(topic, request.user)
+    if topic.owner != request.user:
+        raise Http404
 
     if request.method != 'POST':
         # Initial request; pre-fill form with the current entry.
@@ -90,8 +89,3 @@ def edit_entry(request, entry_id):
 
     context = {'entry': entry, 'topic': topic, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
-
-def _check_topic_owner(topic, user):
-    """Make sure the user associated with a topic."""
-    if topic.owner != user:
-        raise Http404
